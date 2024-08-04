@@ -1,0 +1,43 @@
+select * from sales_data
+
+
+-------------------------------------
+select min(date),max(date) from sales_data
+
+
+----------------------------------------
+
+%python
+
+from datetime import date,timedelta,datetime
+
+dbutils.widgets.dropdown("time_period","weekly",['monthly','weekly','daily'])
+time_period = dbutils.widgets.get("time_period")
+
+today = date.today()
+
+if time_period == 'weekly':
+    start_date = today-timedelta(days=today.weekday(),weeks=1)-timedelta(days=1)
+    end_date = start_date+timedelta(days=6)
+
+elif time_period == 'monthly':
+    first = today.replace(day=1)
+    end_date = first-timedelta(days=1)
+    start_date = first-timedelta(days=end_date.day)
+else:
+    start_date = today-timedelta(days=1)
+    end_date=start_date
+
+
+sales_sum = (spark.sql(f"""select sum(sales) from sales_data where date between '{start_date}' and '{end_date}' """))
+display(sales_sum)
+
+print(start_date,end_date)
+
+
+
+
+
+
+
+
